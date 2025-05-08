@@ -9,6 +9,11 @@ namespace OrderManagementSystem.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
+
+    //logowaniem i autoryzacją, natomiast middleware (UseAuthentication() i UseAuthorization()) uruchamia te mechanizmy w pipeline aplikacji, zapewniając ich działanie dla wszystkich żądań.
+    
+    
+    
     private readonly UserService _userService;
 
     public UserController(UserService userService)
@@ -22,7 +27,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            await _userService.CreateUserAsync(userDto);
+            await _userService.CreateUserAsync(userDto,userDto.Role);
             return Ok("User registered successfully.");
         }
         catch (InvalidOperationException ex)
@@ -57,7 +62,7 @@ public class UserController : ControllerBase
     [HttpGet("denied")]
     public IActionResult AccessDenied()
     {
-        return Forbid("Brak dostępu.");
+        return Content("Brak dostępu.");
     }
     
     
@@ -110,8 +115,8 @@ public class UserController : ControllerBase
     
 
     [HttpGet("{id}")]
-   // [Authorize(Roles = "Admin")]//musze być zalogowany Oraz posiadać  role Admin
-     [Authorize]//musze być zalogowany 
+    [Authorize(Roles = "Admin")]//musze być zalogowany Oraz posiadać  role Admin
+     //[Authorize]//musze być zalogowany 
     public async Task<IActionResult> GetUserByIdAsync([FromRoute] int id)
     {
         try

@@ -12,6 +12,8 @@ public class UserService
     private readonly SignInManager<User> _signInManager;
     
     private readonly UserManager<User> _userManager;
+
+    
     //dodaje jeszcze dodatkowo _roleManager 
     //🔹 RoleManager<TRole> To serwis, który zarządza rolami jako bytami w systemie: Sprawdza, czy rola istnieje (RoleExistsAsync) Tworzy nowe role (CreateAsync) Usuwa i modyfikuje role
     private readonly RoleManager<IdentityRole<int>> _roleManager;
@@ -23,7 +25,7 @@ public class UserService
         _signInManager = signInManager;
     }
 
-    public async Task<User> CreateUserAsync(CreateUserDto userDto)
+    public async Task<User> CreateUserAsync(CreateUserDto userDto,string role)
     {
         User user = new User() 
         { 
@@ -35,11 +37,24 @@ public class UserService
 
         if (result.Succeeded)
         {
+            // Przypisanie roli do użytkownika
+            var roleExists = await _roleManager.RoleExistsAsync(role);
+            if (!roleExists)//Ogólnie żeby nadać role uzytkownikowi to trzeba najpierw ją zapisać do bazy danych IdentityRole wiec to nie jest jak w springu ze jaką chce daje
+            //ogólnie najlepiej by było jakbym na początku dodał odpowiednie role w seed tutaj robie poprostu dynamicznie bo mi sie nie chce.
+            {
+                var roleResult = await _roleManager.CreateAsync(new IdentityRole<int> { Name = role });
+                if (!roleResult.Succeeded)
+                {
+                    throw new InvalidOperationException("Role creation failed");
+                }
+            }
+
+            await _userManager.AddToRoleAsync(user, role);
             return user;
         }
-        var errors = string.Join("; ", result.Errors.Select(e => e.Description));
-        throw new InvalidOperationException(errors);
-        
+
+        throw new InvalidOperationException("Failed to create user");
+    
     }
     
     public async Task LoginAsync(LoginDto dto)
