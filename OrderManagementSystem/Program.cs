@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OrderManagementSystem.Data;
 using OrderManagementSystem.Entities;
+using OrderManagementSystem.Middlewares;
 using OrderManagementSystem.Services;
 
 
@@ -23,6 +24,8 @@ builder.Services.AddIdentity<User, IdentityRole<int>>()
 
 
 var app = builder.Build();
+//3 w ten sposób dodaje middleware
+app.UseMiddleware<SimpleMiddleware>();
 app.MapControllers();
 
 app.MapGet("/", () => "Hello World!");

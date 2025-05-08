@@ -7,7 +7,7 @@
         //2 Eager   Lazy i Explicit Loading
 
         //  todo    Exception handling (np. global exception filter)
-        //    Model Binding & Model Validation (DataAnnotations + custom walidacja)
+       
 
         public int Id { get; set; }
 
