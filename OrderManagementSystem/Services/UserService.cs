@@ -9,15 +9,18 @@ using System.Threading.Tasks;
 
 public class UserService
 {
+    private readonly SignInManager<User> _signInManager;
+    
     private readonly UserManager<User> _userManager;
     //dodaje jeszcze dodatkowo _roleManager 
     //🔹 RoleManager<TRole> To serwis, który zarządza rolami jako bytami w systemie: Sprawdza, czy rola istnieje (RoleExistsAsync) Tworzy nowe role (CreateAsync) Usuwa i modyfikuje role
     private readonly RoleManager<IdentityRole<int>> _roleManager;
 
-    public UserService(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
+    public UserService(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager, SignInManager<User> signInManager)
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _signInManager = signInManager;
     }
 
     public async Task<User> CreateUserAsync(CreateUserDto userDto)
@@ -36,9 +39,27 @@ public class UserService
         }
         var errors = string.Join("; ", result.Errors.Select(e => e.Description));
         throw new InvalidOperationException(errors);
-
-
+        
     }
+    
+    public async Task LoginAsync(LoginDto dto)
+    {
+        var user = await _userManager.FindByNameAsync(dto.UserName);
+        if (user == null)
+            throw new InvalidOperationException("Invalid username or password");
+
+        var result = await _signInManager.PasswordSignInAsync(user, dto.Password, isPersistent: false, lockoutOnFailure: false);
+
+        if (!result.Succeeded)
+            throw new InvalidOperationException("Invalid username or password");
+    }
+    
+    
+    public async Task LogoutAsync()
+    {
+        await _signInManager.SignOutAsync();
+    }
+    
 
     public async Task<User> UpdateUserAsync(int age, int userId)
     {

@@ -19,7 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //musze skonfigurować identity
 //1 AddIdentity<User, IdentityRole<int>> – dodaje obsługę użytkowników (User) i ról (IdentityRole<int>) do aplikacji.
 builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
-    {
+    { 
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequireUppercase = false;
     })

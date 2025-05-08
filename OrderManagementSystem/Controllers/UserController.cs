@@ -36,6 +36,23 @@ public class UserController : ControllerBase
     {
         return Unauthorized("Musisz się zalogować.");
     }
+    
+    [AllowAnonymous] //i to jest tak że w momencie gdy  wpisze np to http://localhost:8080/api/user/4 to wyskoczy komunikat ze musze sie zalogować 
+    //wiec wchodze na login i po zalogowaniu moge juz skakać miedzy endpointami
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginDto dto)
+    {
+        try
+        {
+            await _userService.LoginAsync(dto);
+            return Ok("Login successful.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Unauthorized(ex.Message);
+        }
+    }
+    
 
     [HttpGet("denied")]
     public IActionResult AccessDenied()
@@ -73,10 +90,28 @@ public class UserController : ControllerBase
             return NotFound(ex.Message);
         }
     }
+    
+    
+    
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await _userService.LogoutAsync();
+        return Ok("Logged out.");
+    }
+    
+    
+    
+    
+    
+    
+    
+    
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin")]//musze być zalogowany Oraz posiadać  role Admin
-    // [Authorize]//musze być zalogowany 
+   // [Authorize(Roles = "Admin")]//musze być zalogowany Oraz posiadać  role Admin
+     [Authorize]//musze być zalogowany 
     public async Task<IActionResult> GetUserByIdAsync([FromRoute] int id)
     {
         try
