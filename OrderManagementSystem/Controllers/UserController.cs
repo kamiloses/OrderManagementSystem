@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OrderManagementSystem.Dtos;
 using OrderManagementSystem.Services;
 
@@ -16,19 +17,34 @@ public class UserController : ControllerBase
     }
 
     // POST: api/user
-    [HttpPost("create")]
-    public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserDto userDto)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] CreateUserDto userDto)
     {
         try
         {
-            var user = await _userService.CreateUserAsync(userDto);
-            return Ok(user);
+            await _userService.CreateUserAsync(userDto);
+            return Ok("User registered successfully.");
         }
         catch (InvalidOperationException ex)
         {
             return BadRequest(ex.Message);
         }
     }
+    
+    [HttpGet("login")]
+    public IActionResult Login()
+    {
+        return Unauthorized("Musisz się zalogować.");
+    }
+
+    [HttpGet("denied")]
+    public IActionResult AccessDenied()
+    {
+        return Forbid("Brak dostępu.");
+    }
+    
+    
+    
 
     [HttpPut("update/{userId}")]
     public async Task<IActionResult> UpdateUserAsync([FromRoute] int userId, [FromBody] int age)
@@ -59,6 +75,8 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = "Admin")]//musze być zalogowany Oraz posiadać  role Admin
+    // [Authorize]//musze być zalogowany 
     public async Task<IActionResult> GetUserByIdAsync([FromRoute] int id)
     {
         try

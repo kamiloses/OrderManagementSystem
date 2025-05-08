@@ -10,24 +10,32 @@ using System.Threading.Tasks;
 public class UserService
 {
     private readonly UserManager<User> _userManager;
+    //dodaje jeszcze dodatkowo _roleManager 
+    //🔹 RoleManager<TRole> To serwis, który zarządza rolami jako bytami w systemie: Sprawdza, czy rola istnieje (RoleExistsAsync) Tworzy nowe role (CreateAsync) Usuwa i modyfikuje role
+    private readonly RoleManager<IdentityRole<int>> _roleManager;
 
-    public UserService(UserManager<User> userManager)
+    public UserService(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
     {
         _userManager = userManager;
+        _roleManager = roleManager;
     }
 
     public async Task<User> CreateUserAsync(CreateUserDto userDto)
     {
-        User user = new User() { UserName = userDto.UserName, PasswordHash = userDto.Password, Age = userDto.Age };
+        User user = new User() 
+        { 
+            UserName = userDto.UserName, 
+            Age = userDto.Age 
+        };
 
-        IdentityResult result = await _userManager.CreateAsync(user);
+        IdentityResult result = await _userManager.CreateAsync(user, userDto.Password);//hasło jest hashowane wiec nie podaje hasła w obiekcie user 
 
         if (result.Succeeded)
         {
             return user;
         }
-
-        throw new InvalidOperationException("Failed to create user");
+        var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+        throw new InvalidOperationException(errors);
 
 
     }
