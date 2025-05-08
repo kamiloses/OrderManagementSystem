@@ -115,10 +115,22 @@ public class UserController : ControllerBase
     
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin")]//musze być zalogowany Oraz posiadać  role Admin
+    [Authorize(Roles = "User")]//musze być zalogowany Oraz posiadać  role Admin
      //[Authorize]//musze być zalogowany 
     public async Task<IActionResult> GetUserByIdAsync([FromRoute] int id)
     {
+        //ten kawałek kodu pobiera username uzytkownika wiec na jego podstawie moge reszte rzeczy pobrać z bazy danych ale pamietaj 2 rzeczy
+        //1 username jest zawsze unikalny
+        //2 gdzieś słyszałem że trzeba uzyć app.useAuthentication zeby dało sie sprawdzać dane uzytkownika zzalogowanego ale ja uzywał tylko addIdentit i to jekims cudem
+        //działa wiec nie wiem
+        var username = User.Identity.Name;
+        
+        
+        
+      Console.BackgroundColor = ConsoleColor.Green;
+      Console.Write(username);
+        
+        
         try
         {
             var user = await _userService.GetUserByIdAsync(id);
