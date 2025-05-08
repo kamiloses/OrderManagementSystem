@@ -2,6 +2,13 @@
 
     public class Order
     {
+        
+        //        //TODO EF STORE PROC JESZCZE ZROB ORAZ INCLUDING
+        //2 Eager   Lazy i Explicit Loading
+
+        //  todo    Exception handling (np. global exception filter)
+        //    Model Binding & Model Validation (DataAnnotations + custom walidacja)
+
         public int Id { get; set; }
 
         public DateTime OrderDate { get; set; } = DateTime.Now;
@@ -11,5 +18,5 @@
         public int UserId { get; set; }
 
 
-        public User User { get; set; }
+        public User? User { get; set; }
     }
